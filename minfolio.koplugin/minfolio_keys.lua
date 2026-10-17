@@ -204,8 +204,11 @@ function M.install_keyboard_aliases()
     M.unrotate_keyboard_arrows()
     local em = input.event_map
     if em then
+        -- Fill gaps only: the device map owns codes it already names (e.g. the
+        -- Oasis 2 page-turn buttons, 104/109 -> RPgFwd/RPgBack). Overwriting
+        -- them killed the physical buttons (koreader/koreader#16186).
         for code, name in pairs(M.KEYBOARD_EVENT_MAP) do
-            em[code] = name
+            if em[code] == nil then em[code] = name end
         end
     end
     local mods = input.modifiers
