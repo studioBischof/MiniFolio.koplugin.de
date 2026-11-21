@@ -1,4 +1,6 @@
-# Minfolio Markdown Editor for Koreader
+# This Fork adds support for the german keyboard layout (DE) to the MiniFolio KoReader plugin
+
+## Minfolio Markdown Editor for Koreader
 
 **A simple, distraction-free Markdown editor and note taking app for Koreader.**
 
