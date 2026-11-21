@@ -43,7 +43,7 @@ current as of this writing. Line counts are `wc -l`.
 |---|---|---|---|
 | `minfolio_config.lua` | 65 | `plugin_dir`, `load_local_config`/`CONFIG`, `NOTES_DIR`/`STATE_DIR` and every other state path (`MINFOLIO_PAIR_PATH`, `MINFOLIO_REMOTE_DIR`, `FL_STATE_PATH`, `MINFOLIO_STATE_PATH`), `path_parent`, the old-state-dir migration | none |
 | `minfolio_io.lua` | 60 | `write_file`/`read_file`/`file_signature`/`same_file_signature`/`now_seconds` | none |
-| `minfolio_keys.lua` | 214 | Modifier decoding, key-name aliasing, direction predicates, `makeKeyboardArrowFree`/`disableKeyboardKeyFlash` | none |
+| `minfolio_keys.lua` | 214 | Modifier decoding, key-name aliasing, direction predicates, physical-keyboard layout detection (`layout_text`), `makeKeyboardArrowFree`/`disableKeyboardKeyFlash` | none |
 | `minfolio_const.lua` | 165 | The `MDEDIT_*`/`MINDMAP_*` layout/timing constants plus the palette's filter debounce, as `{ EDIT = {...}, MAP = {...}, PALETTE = {...} }`, and `VERSION` (here rather than in `_meta.lua`, which every plugin has and which `require` therefore cannot disambiguate) | none |
 | `minfolio_style.lua` | 48 | `MD_FACES`, `md_face`, `md_color`, `MDEDIT_TABLE_PAD_X`/`_Y` | none |
 | `minfolio_state.lua` | 59 | `MINFOLIO_STATE`, scale clamp/save, per-note cursor/scroll positions | `minfolio_config`, `minfolio_io` |

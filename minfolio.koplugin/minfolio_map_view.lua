@@ -880,6 +880,16 @@ function MindmapView:centerSelected()
     self:clampPan()
 end
 
+-- Composed text from a physical keyboard with a layout (see Keys.layout_text).
+-- The matching KeyPress only carries the US position name, so an umlaut typed
+-- while renaming a node would otherwise become "[", ";", "'" or "-".
+function MindmapView:onTextInput(text)
+    if not self.editing_index then return false end
+    if type(text) ~= "string" or text == "" then return true end
+    self:addChars(text)
+    return true
+end
+
 function MindmapView:onKeyPress(key)
     local name = key and key.key
     if not name then return true end
@@ -892,7 +902,7 @@ function MindmapView:onKeyPress(key)
         elseif name == "End" then self:goToEndOfLine()
         elseif name == "Press" or name == "Return" or name == "Enter" then self:commitNodeEdit()
         elseif name == "Back" or name == "Esc" or name == "Escape" then self:cancelNodeEdit()
-        elseif not Keys.shortcut_mod(mods) and #tostring(name) == 1 then self:addChars(name) end
+        elseif not Keys.shortcut_mod(mods) and not Keys.layout_text() and #tostring(name) == 1 then self:addChars(name) end
         return true
     end
     if Keys.up_key(name) then

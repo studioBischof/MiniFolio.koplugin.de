@@ -314,6 +314,16 @@ function M.show(opts)
     --
     -- Unhandled keys fall through to the original handler so that Menu's own
     -- bindings still work on hardware that does have them.
+    -- Physical keyboards with a layout deliver the composed characters as
+    -- TextInput events; the accompanying KeyPress carries only the key's US
+    -- position name (see Keys.layout_text). Without this handler a query typed
+    -- on a German keyboard would see "[", ";", "'", "-" instead of the umlauts
+    -- and sz -- or, for those keys, nothing usable at all.
+    function menu:onTextInput(text)
+        if type(text) ~= "string" or text == "" then return true end
+        queue_query((pending_query or query) .. text)
+        return true
+    end
     local original_key_press = menu.onKeyPress
     function menu:onKeyPress(key)
         local name = key and key.key
@@ -349,10 +359,14 @@ function M.show(opts)
             return true
         end
         local ch
-        if name == "Space" or name == "space" or name == " " then
-            ch = " "
-        elseif Keys.KEYPAD_CHAR[name] then
+        if Keys.KEYPAD_CHAR[name] then
             ch = Keys.KEYPAD_CHAR[name]
+        elseif Keys.layout_text() then
+            -- Composed text arrives through onTextInput; a character derived
+            -- from the positional key name here would come out as its US
+            -- equivalent (or duplicate the composed one).
+        elseif name == "Space" or name == "space" or name == " " then
+            ch = " "
         elseif #name == 1 then
             ch = name:lower()
             if Keys.keymod(mods, "Shift") then

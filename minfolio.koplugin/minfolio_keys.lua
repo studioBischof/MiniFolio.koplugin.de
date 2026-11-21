@@ -27,6 +27,9 @@
 -- Added later (not part of the original port): `unrotate_keyboard_arrows`, which
 -- takes the arrow keys out of KOReader's rotation remap so an external keyboard
 -- keeps its printed directions on a rotated screen. See its own comment below.
+-- Also added later: `layout_text`, the predicate that tells the editor a
+-- physical-keyboard layout is composing text and that the characters therefore
+-- arrive as `TextInput` events, not in the (US-positional) key name.
 --
 -- Required by callers as `local Keys = require("minfolio_keys")`.
 
@@ -145,6 +148,19 @@ function M.word_key_mod(mods)
 end
 function M.fn_key_mod(mods)
     return M.keymod(mods, "Fn") or M.keymod(mods, "Function") or M.keymod(mods, "Mod5")
+end
+-- True while KOReader's input layer composes text from a physical-keyboard
+-- LAYOUT (Device.input.hw_text_layout, installed by the externalkeyboard plugin
+-- for a Bluetooth/USB keyboard, or by SDL). In that mode
+-- `Input:handleKeyBoardEv` (frontend/device/input.lua) sends every printable
+-- press as a separate "TextInput" event, and `key.key` keeps only the key's
+-- POSITION on a US-QWERTY board: on a German layout the ue key arrives as "[",
+-- z as "Y", sz as "-". Any widget that types the key name therefore produces
+-- US characters no matter which layout was picked -- it has to take the text
+-- from TextInput instead. Without a resolver (no external keyboard, or an older
+-- KOReader) this is false and the key-name path is still the only source.
+function M.layout_text()
+    return Device.input ~= nil and Device.input.hw_text_layout ~= nil
 end
 function M.key_mods(key)
     local out = {}

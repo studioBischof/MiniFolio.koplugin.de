@@ -1624,11 +1624,28 @@ function MDEdit:onCloseWidget()
         self._wrap_cache = nil
     end
 end
+-- Composed text from a physical keyboard with a layout: KOReader's input layer
+-- resolves the selected layout (e.g. German) and sends the result as a separate
+-- TextInput event -- see Keys.layout_text. The accompanying KeyPress still
+-- carries only the US-position name ("[" for ue, "-" for sz), so this event is
+-- the ONLY way an umlaut reaches the document. Dead keys (^, ´, `) are composed
+-- by KOReader before they get here, so the text may be more than one character.
+function MDEdit:onTextInput(text)
+    if type(text) ~= "string" or text == "" then return true end
+    if self.reader_mode then return true end -- no caret to type at
+    self:queueTypedChar(text)
+    return true
+end
 function MDEdit:onKeyPress(key)
     local name = key and key.key
     if not name then return true end
     local m = Keys.key_mods(key)
     local lname = name:lower()
+    -- With a layout resolver active the composed characters arrive through
+    -- onTextInput; typing the positional key name here as well would insert the
+    -- US character on top of them. Shortcuts and the command keys below keep
+    -- using the positional names, exactly as KOReader's own InputText does.
+    local layout_text = Keys.layout_text()
     -- Shortcuts that only READ the document are handled before the reader-mode
     -- branch below, because they are just as useful there. Everything that
     -- edits has to wait until after it (there is no caret in reader mode).
@@ -1688,7 +1705,9 @@ function MDEdit:onKeyPress(key)
     elseif Keys.down_key(name)  then self:arrow(1, 0, m)
     elseif Keys.page_up_key(name) then self:flushTypeBuffer(); self.sel = nil; self:pageUp()
     elseif Keys.page_down_key(name) then self:flushTypeBuffer(); self.sel = nil; self:pageDown()
-    elseif name == "Space" or name == "space" or name == " " then if Keys.keymod(m, "Alt") then self:flushTypeBuffer(); self.sel = nil; self:wordRight() else self:queueTypedChar(" ") end
+    elseif name == "Space" or name == "space" or name == " " then
+        if Keys.keymod(m, "Alt") then self:flushTypeBuffer(); self.sel = nil; self:wordRight()
+        elseif not layout_text then self:queueTypedChar(" ") end
     elseif name == "ISO_Left_Tab" or name == "BackTab" then self:flushTypeBuffer(); self:indentLine(-1)
     elseif name == "Tab" then
         self:flushTypeBuffer()
@@ -1701,7 +1720,7 @@ function MDEdit:onKeyPress(key)
     elseif name == "End" then self:flushTypeBuffer(); self:goToEndOfLine()
     elseif Keys.KEYPAD_CHAR[name] then self:queueTypedChar(Keys.KEYPAD_CHAR[name])
     elseif #name == 1 then
-        if Keys.keymod(m, "Alt") then return true end
+        if layout_text or Keys.keymod(m, "Alt") then return true end
         local ch = lname
         if Keys.keymod(m, "Shift") then
             if Keys.SHIFT_SYM[ch] then ch = Keys.SHIFT_SYM[ch] elseif ch:match("%a") then ch = ch:upper() end

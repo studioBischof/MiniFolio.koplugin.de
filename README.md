@@ -67,6 +67,23 @@ Ctrl is Command on a Mac keyboard.
 
 Find, next/previous match and word count also work in reader mode.
 
+### Physical keyboard layout (German)
+
+Minfolio types whatever KOReader's physical-keyboard layout resolver produces,
+so it follows any layout KOReader supports — German, French, and so on — including
+dead keys and AltGr characters such as `@` and `€`. Select the layout for the
+attached keyboard in **KOReader → External Keyboard → Keyboard layout**. That is
+the layout KOReader applies to key presses; the on-screen keyboard layout and a
+layout chosen in the Kindle system settings are *not* seen by KOReader.
+
+This requires a KOReader build from **16 September 2026 or later** (development /
+nightly channel). The 2026.07.x stable releases predate the feature and report
+every physical key as its US position.
+
+Shortcut chords (`Ctrl-Z`, …) are still matched by physical position, exactly as
+in KOReader itself: on a German keyboard, undo is `Ctrl` plus the key labelled
+`Y`.
+
 ## Config
 
 Minfolio works with no configuration. The defaults are:
